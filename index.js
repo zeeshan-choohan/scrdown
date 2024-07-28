@@ -155,7 +155,10 @@ app.post('/download', async (req, res) => {
 
     try {
         if (!browser) {
-            browser = await puppeteer.launch({ headless: true });
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            });
         }
 
         page = await browser.newPage();
@@ -186,7 +189,6 @@ app.post('/download', async (req, res) => {
         if (page) await page.close();
     }
 });
-
 
 // Schedule cleanup every hour
 cron.schedule('0 * * * *', async () => {
