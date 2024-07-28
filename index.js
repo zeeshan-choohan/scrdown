@@ -160,7 +160,6 @@ app.post('/download', async (req, res) => {
 
         page = await browser.newPage();
 
-        // Set download behavior using modern Puppeteer API
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
@@ -171,15 +170,13 @@ app.post('/download', async (req, res) => {
 
         const filePath = await downloadDocument(page, url);
 
-        // Serve the file to the user
         const fileBuffer = await fs.readFile(filePath);
+        const filename = path.basename(filePath);
 
-        const fileType = path.extname(filePath).substring(1); // Extract file type
-        res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`);
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
         res.setHeader('Content-Type', 'application/octet-stream');
         res.send(fileBuffer);
 
-        // Delete the file after sending it to the user
         await fs.unlink(filePath);
 
     } catch (error) {
@@ -189,6 +186,7 @@ app.post('/download', async (req, res) => {
         if (page) await page.close();
     }
 });
+
 
 // Schedule cleanup every hour
 cron.schedule('0 * * * *', async () => {

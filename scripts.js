@@ -30,7 +30,7 @@ document.getElementById('downloadForm').addEventListener('submit', async functio
         let receivedLength = 0;
         let chunks = [];
 
-        while(true) {
+        while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             chunks.push(value);
@@ -44,18 +44,29 @@ document.getElementById('downloadForm').addEventListener('submit', async functio
         }
 
         const blob = new Blob(chunks);
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'downloadedfile';
+
+        if (contentDisposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = downloadUrl;
-        a.download = url.split('/').pop() + '.pdf';
+        a.download = filename;
+        document.body.appendChild(a);
         a.click();
         URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
 
         progressValue.textContent = '100%';
         progressBar.value = 100;
         resultDiv.textContent = 'Download complete!';
 
-        // Clear the input field
         document.getElementById('downloadForm').reset();
 
     } catch (error) {
