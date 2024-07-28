@@ -20,20 +20,24 @@ let browser;
 
 // Function to login and save cookies
 async function loginAndSaveCookies(page) {
-    await page.goto('https://www.scribd.com/login', { waitUntil: 'networkidle2' });
-    await page.waitForSelector('input[name="username"]');
-    await page.type('input[name="username"]', process.env.SCRIBD_EMAIL, { delay: 100 });
-    await page.waitForSelector('input[name="password"]');
-    await page.type('input[name="password"]', process.env.SCRIBD_PASSWORD, { delay: 100 });
+    try {
+        await page.goto('https://www.scribd.com/login', { waitUntil: 'networkidle2' });
+        await page.waitForSelector('input[name="username"]');
+        await page.type('input[name="username"]', process.env.SCRIBD_EMAIL, { delay: 100 });
+        await page.waitForSelector('input[name="password"]');
+        await page.type('input[name="password"]', process.env.SCRIBD_PASSWORD, { delay: 100 });
 
-    console.log("Please solve the reCAPTCHA manually.");
-    await page.waitForSelector('button[type="submit"]');
-    await page.click('button[type="submit"]');
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        console.log("Please solve the reCAPTCHA manually.");
+        await page.waitForSelector('button[type="submit"]');
+        await page.click('button[type="submit"]');
+        await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
-    const cookies = await page.cookies();
-    await fs.writeFile('cookies.json', JSON.stringify(cookies));
-    console.log("Login successful and cookies saved.");
+        const cookies = await page.cookies();
+        await fs.writeFile('cookies.json', JSON.stringify(cookies));
+        console.log("Login successful and cookies saved.");
+    } catch (error) {
+        console.error('Error during login and save cookies:', error);
+    }
 }
 
 // Function to ensure the user is logged in
@@ -67,10 +71,10 @@ async function ensureLoggedIn(page) {
 // Function to handle document download
 async function downloadDocument(page, url) {
     console.log(`Navigating to URL: ${url}`);
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
-    console.log(`Navigated to URL: ${url}`);
-
     try {
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
+        console.log(`Navigated to URL: ${url}`);
+
         await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
         console.log('Waiting for the download button to appear...');
         await page.waitForSelector("div[class='doc_actions'] span[class='icon icon-ic_download_with_line']", { visible: true, timeout: 120000 });
@@ -206,5 +210,7 @@ cron.schedule('0 * * * *', async () => {
     }
 });
 
-
-app.listen(process.env.PORT || 80 , '0.0.0.0');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
