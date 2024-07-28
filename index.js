@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.json());
+app.use('/favicon', express.static(path.join(__dirname, 'favicon')));
 app.use(express.static(path.join(__dirname)));  // Serve static files from the main directory
 
 const DOWNLOAD_DIR = path.join(__dirname, 'downloadedfile');
