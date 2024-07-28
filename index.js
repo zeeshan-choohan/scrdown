@@ -72,10 +72,10 @@ async function ensureLoggedIn(page) {
 async function downloadDocument(page, url) {
     console.log(`Navigating to URL: ${url}`);
     try {
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 100000 });
         console.log(`Navigated to URL: ${url}`);
 
-        await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
+        await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds
         console.log('Waiting for the download button to appear...');
         await page.waitForSelector("div[class='doc_actions'] span[class='icon icon-ic_download_with_line']", { visible: true, timeout: 120000 });
         console.log('Clicking the download button...');
@@ -88,7 +88,7 @@ async function downloadDocument(page, url) {
             }
         });
 
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Additional wait for the modal to appear
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Additional wait for the modal to appear
         console.log('Waiting for the download modal to appear...');
         await page.waitForFunction(() => {
             return document.querySelector('.wrapper__filled-button.download_selection_btn') !== null;
@@ -110,10 +110,10 @@ async function downloadDocument(page, url) {
         });
 
         // Ensure the modal remains open
-        await page.waitForSelector('.wrapper__filled-button.download_selection_btn', { visible: true, timeout: 120000 });
+        await page.waitForSelector('.wrapper__filled-button.download_selection_btn', { visible: true, timeout: 100000 });
         console.log('Clicking the download selection button...');
         await page.click('.wrapper__filled-button.download_selection_btn');
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Additional wait for the modal to appear
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Additional wait for the modal to appear
 
         // Remove request interception to allow download
         await page.setRequestInterception(false);
